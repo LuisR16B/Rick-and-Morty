@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rick and Morty</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  </head>
+  <body class="bg-[linear-gradient(to_bottom,hsl(220,15%,8%),hsl(220,15%,15%))] bg-fixed bg-cover text-white">
+    <nav id="navbar" class="hidden sticky top-0 bg-zinc-800 p-4 z-[100] justify-between items-center">
+      <div>
+        <img width="120" src="./src/img/rick-and-morty.png" alt="">
+      </div>
+      <div class="flex gap-5">
+        <button id="btnPersonajes" class="md:border-b-2 md:border-[#008000] p-2 rounded-lg md:px-4 md:py-1 cursor-pointer md:rounded-none">
+          <span class="hidden md:block">Personajes</span>
+          <svg class="md:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house-icon lucide-house"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </button>
+        <button id="btnFavoritos" class="md:border-b-2 md:border-[#008000] p-2 rounded-lg md:px-4 md:py-1 cursor-pointer md:rounded-none">
+          <span class="hidden md:block">Favoritos</span>
+          <svg class="md:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-icon lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
+        </button>
+        <span class="border-l-2 border-[#008000] rounded-2xl md:hidden"></span>
+        <button id="btnCerrarSesion" class="md:border-l-2 md:border-[#008000] p-2 rounded-lg md:px-4 md:py-1 cursor-pointer md:rounded-none">
+          <span class="hidden md:block">Cerrar sesión</span>
+          <svg class="md:hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-4 h-4" data-lov-id="src/components/layout/Navigation.tsx:80:16" data-lov-name="LogOut" data-component-path="src/components/layout/Navigation.tsx" data-component-line="80" data-component-file="Navigation.tsx" data-component-name="LogOut" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" x2="9" y1="12" y2="12"></line></svg>
+        </button>
+      </div>
+    </nav>
+    <main id="main" class="h-screen flex justify-center">
+      <section id="sectionIniciar" class="flex justify-center flex-col gap-20 w-screen max-w-[500px] mx-4">
+        <div class="flex flex-col items-center gap-5">
+          <img src="./src/img/rick-and-morty.png" alt="Rick and Morty" class="w-50"/>
+          <p class="text-center text-gray-400">Inicia sesión o crea una cuenta para continuar</p>
+          <div class="bg-zinc-800 rounded-lg border-1 border-[#008000] w-full">
+            <div class="w-full grid grid-cols-2 items-center bg-zinc-700 rounded-t-lg overflow-auto">
+              <button id="iniciarSeccion" class="w-full h-full py-5 bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)] font-semibold">Iniciar sesión</button>
+              <button id="registro" class="w-full h-full py-5 font-semibold">Registro</button>
+            </div>
+            <div class="p-5">
+              <form id="formIniciarSeccion" class="flex flex-col gap-5">
+                <div class="flex flex-col gap-2">
+                  <label for="correoIniciarSesion">Correo</label>
+                  <input id="correoIniciarSesion" type="email" placeholder="ej: rickandmorty@gmail.com" autocomplete="new-password" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="PasswordIniciarSesion">Contraseña</label>
+                  <input id="PasswordIniciarSesion" type="password" placeholder="Ingresa tu contraseña" autocomplete="new-password" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                </div>
+                <button id="btnIniciarSesion" type="submit" class="bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)] p-2 rounded-md font-semibold mt-5">Iniciar sesión</button>
+              </form>
+              <form id="formRegistro" action="" class="hidden flex-col gap-5">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex flex-col gap-2">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" placeholder="Nombre" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                  </div>
+                  <div class="flex flex-col gap-2">
+                    <label for="apellido">Apellido</label>
+                    <input type="text" id="apellido" placeholder="Apellido" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="correoRegistro">Correo</label>
+                  <input type="email" id="correoRegistro" placeholder="ej: rickandmorty@gmail.com" autocomplete="new-password" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="passwordRegistro">Contraseña</label>
+                  <input type="password" id="passwordRegistro" placeholder="Ingresa tu contraseña" autocomplete="new-password" class="bg-zinc-700 rounded-md pl-3 py-2 border-1 border-[#008000] focus:outline-none">
+                </div>
+                <button id="btnCrearCuenta" type="submit" class="bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)] p-2 rounded-md font-semibold mt-5">Crear cuenta</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+      <header id="header" class="w-full hidden flex-col px-5">
+        <section id="sectionTarjetas" class="flex flex-col items-center gap-4 mb-5">
+          <div id="divTarjetas" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 p-6"></div>
+          <div class="flex justify-center items-center gap-4">
+            <button id="btnAnterior" class="bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)] p-2 rounded-md font-semibold">Anterior</button>
+            <p class="text-white">Página <span id="paginaActual">1</span> de 48</p>
+            <button id="btnSiguiente" class="bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)] p-2 rounded-md font-semibold">Siguiente</button>
+          </div>
+        </section>
+        <section id="sectionFavoritos" class="hidden flex-col items-center gap-4">
+          <div id="divFavoritos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 p-6"></div>
+          <div>
+            <p>No tienes personajes favoritos.</p>
+          </div>
+        </section>
+      </header>
+    </main>
+    <script src="./main.js"></script>
+  </body>
+</html>
