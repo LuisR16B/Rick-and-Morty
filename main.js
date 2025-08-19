@@ -40,7 +40,8 @@ const sectionTarjetas = document.getElementById("sectionTarjetas");
 const divFavoritos = document.getElementById("divFavoritos");
 
 const regexCorreo = /[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}/;
-const regexPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])([A-Za-z\d$@$!%*?&]|[^ ]){8,15}$/;
+const regexPassword = /^(?=.*[A-Z])(?=.*[$@$!%*?&]).{8,15}$/;
+const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]{2,20}$/;
 
 class Usuario {
   constructor(nombre, apellido, correo, password) {
@@ -59,13 +60,13 @@ class Usuario {
 }
 
 let usuarios = JSON.parse(localStorage.getItem("usuarios")) ? JSON.parse(localStorage.getItem("usuarios")) : [new Usuario("Luis", "Rojas", "luisrojas@gmail.com", "luis2001")];
-let usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActual")) ? restaurarUsuario(JSON.parse(sessionStorage.getItem("usuarioActual"))) : null;
+let usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActual"));
 
 function restaurarUsuario(obj) {
     const usuario = new Usuario(obj.nombre, obj.apellido, obj.correo, obj.password);
     usuario.favoritos = obj.favoritos;
     return usuario;
-} //revisar
+}
 
 registro.addEventListener("click", () => {
   loginForm.classList.add("hidden");
@@ -92,6 +93,7 @@ btnIniciarSesion.addEventListener("click", (e) => {
 
   usuarioActual = usuarios.find((user) => user.correo === correo && user.password === password);
   if (usuarioActual) {
+    btnPersonajes.click();
     sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActual));
     usuarioActual = restaurarUsuario(usuarioActual);
     header.classList.remove("hidden");
@@ -102,7 +104,7 @@ btnIniciarSesion.addEventListener("click", (e) => {
     document.getElementById("navbar").classList.add("flex");
     document.getElementById("correoIniciarSesion").value = "";
     document.getElementById("PasswordIniciarSesion").value = "";
-    showData('https://rickandmortyapi.com/api/character');
+    mostrarDatos('https://rickandmortyapi.com/api/character');
     cargarFavoritos();
   } else {
     alert("Correo o contraseña incorrectos");
@@ -118,10 +120,14 @@ btnCrearCuenta.addEventListener("click", (e) => {
 
   if(usuarios.some(user => user.correo === correo)){
     alert("Este correo ya esta registrado");
+  } else if(!regexNombre.test(nombre)){
+    alert("Nombre no válido");
+  } else if(!regexNombre.test(apellido)){
+    alert("Apellido no válido");
   } else if(!regexCorreo.test(correo)){
     alert("Correo electrónico no válido");
   } else if(!regexPassword.test(password)){
-    alert("La contraseña debe tener entre 8 y 15 caracteres, al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.");
+    alert("La contraseña debe tener entre 8 y 15 caracteres, al menos una letra mayúscula y un carácter especial.");
   } else if (nombre && apellido && correo && password) {
     alert("Cuenta creada exitosamente");
     document.getElementById("nombre").value = "";
@@ -150,6 +156,10 @@ btnFavoritos.addEventListener("click", () => {
   sectionFavoritos.classList.add("flex");
   sectionTarjetas.classList.remove("flex");
   sectionTarjetas.classList.add("hidden");
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto'
+  });
 });
 
 btnPersonajes.addEventListener("click", () => {
@@ -157,9 +167,13 @@ btnPersonajes.addEventListener("click", () => {
   sectionFavoritos.classList.add("hidden");
   sectionTarjetas.classList.remove("hidden");
   sectionTarjetas.classList.add("flex");
+  window.scrollTo({
+    top: 0,
+    behavior: 'auto'
+  });
 });
 
-async function showData(url) {
+async function mostrarDatos(url) {
   divTarjetas.innerHTML = '';
   try {
     const response = await fetch(url);
@@ -217,7 +231,7 @@ async function cargarFavoritos() {
 
 function crearTarjeta(character, contexto = "card") {
   const esFavorito = usuarioActual.favoritos.includes(character.id);
-  const idUnico = `fav-${contexto}-${character.id}`;
+  const idUnico = `${contexto}-${character.id}`;
   return `
     <img src="${character.image}" alt="${character.name}" class="w-full group-hover:scale-110 transition duration-300">
     <div class="p-4 flex flex-col gap-2">
@@ -242,7 +256,7 @@ function navegacion(info) {
   // Siguiente
   if (info.next) {
     btnSiguiente.disabled = false;
-    btnSiguiente.onclick = () => {showData(info.next); paginaActual.textContent = parseInt(paginaActual.textContent) + 1;};
+    btnSiguiente.onclick = () => {mostrarDatos(info.next); paginaActual.textContent = parseInt(paginaActual.textContent) + 1;};
   } else {
     btnSiguiente.disabled = true;
     btnSiguiente.onclick = null;
@@ -250,7 +264,7 @@ function navegacion(info) {
   // Anterior
   if (info.prev) {
     btnAnterior.disabled = false;
-    btnAnterior.onclick = () => {showData(info.prev); paginaActual.textContent = parseInt(paginaActual.textContent) - 1;};
+    btnAnterior.onclick = () => {mostrarDatos(info.prev); paginaActual.textContent = parseInt(paginaActual.textContent) - 1;};
   } else {
     btnAnterior.disabled = true;
     btnAnterior.onclick = null;
@@ -263,11 +277,6 @@ function actualizarUsuario() {
 }
 
 window.addEventListener("beforeunload", () => {
-  if (usuarioActual) {
-    actualizarUsuario();
-    sessionStorage.removeItem("usuarioActual");
-  }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
+  actualizarUsuario();
+  sessionStorage.removeItem("usuarioActual");
 });
