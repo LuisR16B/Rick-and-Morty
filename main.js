@@ -43,6 +43,16 @@ const regexCorreo = /[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-
 const regexPassword = /^(?=.*[A-Z])(?=.*[$@$!%*?&]).{8,15}$/;
 const regexNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s'-]{2,20}$/;
 
+/**
+ * @class Usuario
+ * @description Clase que representa a un usuario con sus datos y lista de favoritos.
+ * @param {string} nombre - El nombre del usuario.
+ * @param {string} apellido - El apellido del usuario.
+ * @param {string} correo - El correo electrónico del usuario.
+ * @param {string} password - La contraseña del usuario.
+ * @param {Array} favoritos - La lista de personajes favoritos del usuario.
+ * @author Luis Rojas
+ */
 class Usuario {
   constructor(nombre, apellido, correo, password) {
     this.nombre = nombre;
@@ -51,23 +61,43 @@ class Usuario {
     this.password = password;
     this.favoritos = [];
   }
-  agregarFavorito(episodio) {
-    this.favoritos.push(episodio);
+  /**
+   * @name agregarFavorito
+   * @description Agrega un personaje a la lista de favoritos del usuario.
+   * @param {Object} personaje - El personaje a agregar.
+   */
+  agregarFavorito(personaje) {
+    this.favoritos.push(personaje);
   }
-  eliminarFavorito(episodio) {
-    this.favoritos = this.favoritos.filter((fav) => fav !== episodio);
+  /**
+   * @name eliminarFavorito
+   * @description Elimina un personaje de la lista de favoritos del usuario.
+   * @param {Object} personaje - El personaje a eliminar.
+   */
+  eliminarFavorito(personaje) {
+    this.favoritos = this.favoritos.filter((fav) => fav !== personaje);
   }
 }
 
 let usuarios = JSON.parse(localStorage.getItem("usuarios")) ? JSON.parse(localStorage.getItem("usuarios")) : [new Usuario("Luis", "Rojas", "luisrojas@gmail.com", "luis2001")];
 let usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActual"));
 
+/**
+ * @name restaurarUsuario
+ * @description Restaura un objeto Usuario a partir de un objeto JSON.
+ * @param {Object} obj - El objeto JSON con los datos del usuario.
+ * @returns {Usuario} - El objeto Usuario restaurado.
+ */
 function restaurarUsuario(obj) {
-    const usuario = new Usuario(obj.nombre, obj.apellido, obj.correo, obj.password);
-    usuario.favoritos = obj.favoritos;
-    return usuario;
+  const usuario = new Usuario(obj.nombre, obj.apellido, obj.correo, obj.password);
+  usuario.favoritos = obj.favoritos;
+  return usuario;
 }
 
+/**
+ * @listens click
+ * @description Muestra el formulario de registro y oculta el de inicio de sesión.
+ */
 registro.addEventListener("click", () => {
   loginForm.classList.add("hidden");
   registroForm.classList.remove("hidden");
@@ -77,6 +107,10 @@ registro.addEventListener("click", () => {
   iniciarSeccion.classList.add("bg-zinc-700");
 });
 
+/**
+ * @listens click
+ * @description Muestra el formulario de inicio de sesión y oculta el de registro.
+ */
 iniciarSeccion.addEventListener("click", () => {
   loginForm.classList.remove("hidden");
   registroForm.classList.add("hidden");
@@ -86,6 +120,11 @@ iniciarSeccion.addEventListener("click", () => {
   registro.classList.add("bg-zinc-700");
 });
 
+/**
+ * @listens click
+ * @description Inicia sesión con el usuario.
+ * @param {Event} e - El evento de clic.
+ */
 btnIniciarSesion.addEventListener("click", (e) => {
   e.preventDefault();
   const correo = document.getElementById("correoIniciarSesion").value;
@@ -111,6 +150,11 @@ btnIniciarSesion.addEventListener("click", (e) => {
   }
 });
 
+/**
+ * @listens click
+ * @description Crea una nueva cuenta de usuario.
+ * @param {Event} e - El evento de clic.
+ */
 btnCrearCuenta.addEventListener("click", (e) => {
   e.preventDefault();
   const nombre = document.getElementById("nombre").value;
@@ -141,6 +185,10 @@ btnCrearCuenta.addEventListener("click", (e) => {
   }
 });
 
+/**
+ * @listens click
+ * @description Cierra la sesión del usuario.
+ */
 btnCerrarSesion.addEventListener("click", () => {
   header.classList.add("hidden");
   document.getElementById("sectionIniciar").classList.remove("hidden");
@@ -151,6 +199,10 @@ btnCerrarSesion.addEventListener("click", () => {
   actualizarUsuario();
 });
 
+/**
+ * @listens click
+ * @description Muestra la sección de favoritos.
+ */
 btnFavoritos.addEventListener("click", () => {
   sectionFavoritos.classList.remove("hidden");
   sectionFavoritos.classList.add("flex");
@@ -162,6 +214,10 @@ btnFavoritos.addEventListener("click", () => {
   });
 });
 
+/**
+ * @listens click
+ * @description Muestra la sección de personajes.
+ */
 btnPersonajes.addEventListener("click", () => {
   sectionFavoritos.classList.remove("flex");
   sectionFavoritos.classList.add("hidden");
@@ -173,6 +229,11 @@ btnPersonajes.addEventListener("click", () => {
   });
 });
 
+/**
+ * @name mostrarDatos
+ * @description Muestra los datos de los personajes.
+ * @param {string} url - La URL de la API.
+ */
 async function mostrarDatos(url) {
   divTarjetas.innerHTML = '';
   try {
@@ -191,6 +252,11 @@ async function mostrarDatos(url) {
   }
 }
 
+/**
+ * @name favoritos
+ * @description Agrega o elimina un personaje de la lista de favoritos del usuario.
+ * @param {number} id - El ID del personaje.
+ */
 function favoritos(id) {
   if (!usuarioActual.favoritos.includes(id)) {
     usuarioActual.agregarFavorito(id);
@@ -212,6 +278,10 @@ function favoritos(id) {
   cargarFavoritos();
 }
 
+/**
+ * @name cargarFavoritos
+ * @description Carga los personajes favoritos del usuario.
+ */
 async function cargarFavoritos() {
   divFavoritos.innerHTML = '';
   try {
@@ -229,10 +299,17 @@ async function cargarFavoritos() {
   }
 }
 
+/**
+ * @name crearTarjeta
+ * @description Crea una tarjeta para mostrar la información de un personaje.
+ * @param {Object} character - El objeto del personaje.
+ * @param {string} contexto - El contexto en el que se está creando la tarjeta (por defecto "card").
+ * @returns {string} - El HTML de la tarjeta.
+ */
 function crearTarjeta(character, contexto = "card") {
   const esFavorito = usuarioActual.favoritos.includes(character.id);
   const idUnico = `${contexto}-${character.id}`;
-  return `
+  const tarjeta = `
     <img src="${character.image}" alt="${character.name}" class="w-full group-hover:scale-110 transition duration-300">
     <div class="p-4 flex flex-col gap-2">
       <h2 class="font-bold text-2xl">${character.name}</h2>
@@ -250,8 +327,14 @@ function crearTarjeta(character, contexto = "card") {
       </svg>
     </label>
   `;
+  return tarjeta;
 }
 
+/**
+ * @name navegacion
+ * @description Maneja la navegación entre páginas de personajes.
+ * @param {Object} info - La información de la paginación.
+ */
 function navegacion(info) {
   // Siguiente
   if (info.next) {
@@ -271,11 +354,20 @@ function navegacion(info) {
   }
 }
 
+/**
+ * @name actualizarUsuario
+ * @description Actualiza la información del usuario en el almacenamiento local.
+ */
+
 function actualizarUsuario() {
   usuarios = usuarios.map(user => user.correo === usuarioActual.correo ? usuarioActual : user);
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
 }
 
+/**
+ * @listener beforeunload
+ * @description Guarda la información del usuario antes de cerrar la pestaña. y remueve la sesión actual.
+ */
 window.addEventListener("beforeunload", () => {
   actualizarUsuario();
   sessionStorage.removeItem("usuarioActual");
