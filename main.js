@@ -22,6 +22,8 @@ Opcional: Crea una página de login/register con sus validaciones respectivas. C
 Opcional: Encripta la contraseña del usuario al momento de registrarse, y desencriptala unicamente para verificación al momento del login, para encriptar debes de utilizar la palabra clave que funcione como una llave. Esta llave debe de estar escondida en un archivo .env, ya que el usuario no carga este archivo en el frontend.
 */
 
+import bcrypt from "https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/+esm";
+
 const iniciarSeccion = document.getElementById("iniciarSeccion");
 const registro = document.getElementById("registro");
 const loginForm = document.getElementById("formIniciarSeccion");
@@ -79,7 +81,7 @@ class Usuario {
   }
 }
 
-let usuarios = JSON.parse(localStorage.getItem("usuarios")) ? JSON.parse(localStorage.getItem("usuarios")) : [new Usuario("Luis", "Rojas", "luisrojas@gmail.com", "luis2001")];
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) ? JSON.parse(localStorage.getItem("usuarios")) : [];
 let usuarioActual = JSON.parse(sessionStorage.getItem("usuarioActual"));
 
 /**
@@ -129,22 +131,9 @@ btnIniciarSesion.addEventListener("click", (e) => {
   e.preventDefault();
   const correo = document.getElementById("correoIniciarSesion").value;
   const password = document.getElementById("PasswordIniciarSesion").value;
-
-  usuarioActual = usuarios.find((user) => user.correo === correo && user.password === password);
+  usuarioActual = usuarios.find((user) => user.correo === correo && bcrypt.compareSync(password, user.password));
   if (usuarioActual) {
-    btnPersonajes.click();
-    sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActual));
-    usuarioActual = restaurarUsuario(usuarioActual);
-    header.classList.remove("hidden");
-    document.getElementById("sectionIniciar").classList.add("hidden");
-    document.getElementById("main").classList.add("items-start");
-    document.getElementById("main").classList.remove("h-screen");
-    document.getElementById("navbar").classList.remove("hidden");
-    document.getElementById("navbar").classList.add("flex");
-    document.getElementById("correoIniciarSesion").value = "";
-    document.getElementById("PasswordIniciarSesion").value = "";
-    mostrarDatos('https://rickandmortyapi.com/api/character');
-    cargarFavoritos();
+    iniciarSeccionFuncion(usuarioActual);
   } else {
     alert("Correo o contraseña incorrectos");
   }
@@ -178,8 +167,11 @@ btnCrearCuenta.addEventListener("click", (e) => {
     document.getElementById("apellido").value = "";
     document.getElementById("correoRegistro").value = "";
     document.getElementById("passwordRegistro").value = "";
-    usuarios.push(new Usuario(nombre, apellido, correo, password));
+    const salt = bcrypt.genSaltSync(12);
+    const hash = bcrypt.hashSync(password, salt);
+    usuarios.push(new Usuario(nombre, apellido, correo, hash));
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    iniciarSeccionFuncion(usuarios[usuarios.length - 1]);
   }else{
     alert("Por favor, complete todos los campos");
   }
@@ -190,6 +182,7 @@ btnCrearCuenta.addEventListener("click", (e) => {
  * @description Cierra la sesión del usuario.
  */
 btnCerrarSesion.addEventListener("click", () => {
+  iniciarSeccion.click();
   header.classList.add("hidden");
   document.getElementById("sectionIniciar").classList.remove("hidden");
   document.getElementById("main").classList.remove("items-start");
@@ -197,6 +190,7 @@ btnCerrarSesion.addEventListener("click", () => {
   document.getElementById("navbar").classList.add("hidden");
   document.getElementById("navbar").classList.remove("flex");
   actualizarUsuario();
+  sessionStorage.removeItem("usuarioActual");
 });
 
 /**
@@ -229,6 +223,22 @@ btnPersonajes.addEventListener("click", () => {
   });
 });
 
+function iniciarSeccionFuncion(usuarioActualFuncion) {
+  btnPersonajes.click();
+  sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActualFuncion));
+  usuarioActual = restaurarUsuario(usuarioActualFuncion);
+  header.classList.remove("hidden");
+  document.getElementById("sectionIniciar").classList.add("hidden");
+  document.getElementById("main").classList.add("items-start");
+  document.getElementById("main").classList.remove("h-screen");
+  document.getElementById("navbar").classList.remove("hidden");
+  document.getElementById("navbar").classList.add("flex");
+  document.getElementById("correoIniciarSesion").value = "";
+  document.getElementById("PasswordIniciarSesion").value = "";
+  mostrarDatos('https://rickandmortyapi.com/api/character');
+  cargarFavoritos();
+}
+
 /**
  * @name mostrarDatos
  * @description Muestra los datos de los personajes.
@@ -257,7 +267,7 @@ async function mostrarDatos(url) {
  * @description Agrega o elimina un personaje de la lista de favoritos del usuario.
  * @param {number} id - El ID del personaje.
  */
-function favoritos(id) {
+function agregarEliminarFavorito(id) {
   if (!usuarioActual.favoritos.includes(id)) {
     usuarioActual.agregarFavorito(id);
   } else {
@@ -318,7 +328,7 @@ function crearTarjeta(character, contexto = "card") {
       <p><span class="font-bold">Género:</span> ${character.gender}</p>
     </div>
     <label class="absolute top-4 right-4 p-3 rounded-full ${esFavorito ? 'bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)]' : 'bg-zinc-700'} label-${character.id} cursor-pointer hover:scale-105 transition duration-300">
-      <input id="${idUnico}" type="checkbox" class="hidden input-${character.id}" onclick="favoritos(${character.id})" ${esFavorito ? 'checked' : ''}>
+      <input id="${idUnico}" type="checkbox" class="hidden input-${character.id}" onclick="agregarEliminarFavorito(${character.id})" ${esFavorito ? 'checked' : ''}>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
         viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round"
