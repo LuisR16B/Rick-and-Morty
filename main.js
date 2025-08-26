@@ -131,6 +131,7 @@ btnIniciarSesion.addEventListener("click", (e) => {
   e.preventDefault();
   const correo = document.getElementById("correoIniciarSesion").value;
   const password = document.getElementById("PasswordIniciarSesion").value;
+  // Verificar si el usuario existe
   usuarioActual = usuarios.find((user) => user.correo === correo && bcrypt.compareSync(password, user.password));
   if (usuarioActual) {
     iniciarSeccionFuncion(usuarioActual);
@@ -150,7 +151,7 @@ btnCrearCuenta.addEventListener("click", (e) => {
   const apellido = document.getElementById("apellido").value;
   const correo = document.getElementById("correoRegistro").value;
   const password = document.getElementById("passwordRegistro").value;
-
+  // Verificar si el correo ya está registrado y si los campos son válidos
   if(usuarios.some(user => user.correo === correo)){
     alert("Este correo ya esta registrado");
   } else if(!regexNombre.test(nombre)){
@@ -167,8 +168,10 @@ btnCrearCuenta.addEventListener("click", (e) => {
     document.getElementById("apellido").value = "";
     document.getElementById("correoRegistro").value = "";
     document.getElementById("passwordRegistro").value = "";
+    // encriptar contraseña
     const salt = bcrypt.genSaltSync(12);
     const hash = bcrypt.hashSync(password, salt);
+    // Agregando nuevo usuario
     usuarios.push(new Usuario(nombre, apellido, correo, hash));
     localStorage.setItem("usuarios", JSON.stringify(usuarios));
     iniciarSeccionFuncion(usuarios[usuarios.length - 1]);
@@ -202,6 +205,7 @@ btnFavoritos.addEventListener("click", () => {
   sectionFavoritos.classList.add("flex");
   sectionTarjetas.classList.remove("flex");
   sectionTarjetas.classList.add("hidden");
+  // Desplazar la ventana hacia arriba
   window.scrollTo({
     top: 0,
     behavior: 'auto'
@@ -217,12 +221,18 @@ btnPersonajes.addEventListener("click", () => {
   sectionFavoritos.classList.add("hidden");
   sectionTarjetas.classList.remove("hidden");
   sectionTarjetas.classList.add("flex");
+  // Desplazar la ventana hacia arriba
   window.scrollTo({
     top: 0,
     behavior: 'auto'
   });
 });
 
+/**
+ * @name iniciarSeccionFuncion
+ * @description Inicia la sesión del usuario y muestra la interfaz principal.
+ * @param {Object} usuarioActualFuncion
+ */
 function iniciarSeccionFuncion(usuarioActualFuncion) {
   btnPersonajes.click();
   sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActualFuncion));
@@ -248,14 +258,17 @@ async function mostrarDatos(url) {
   divTarjetas.innerHTML = '';
   try {
     const response = await fetch(url);
+    // Verificar si la respuesta es válida
     if (!response.ok) throw new Error("Error al cargar los datos");
     const data = await response.json();
     data.results.forEach(character => {
+      // Crear tarjeta para cada personaje
       let card = document.createElement('div');
       card.className = 'border-1 border-[#008000] rounded shadow-lg bg-zinc-800 flex flex-col gap-2 relative overflow-hidden hover:scale-105 transition duration-300 hover:shadow-lg hover:shadow-[#008000] group';
-      card.innerHTML = crearTarjeta(character);
+      card.appendChild(crearTarjeta(character));
       divTarjetas.appendChild(card);
     });
+    // Actualizar la navegación
     navegacion(data.info);
   } catch (error) {
     console.error(error);
@@ -268,12 +281,15 @@ async function mostrarDatos(url) {
  * @param {number} id - El ID del personaje.
  */
 function agregarEliminarFavorito(id) {
+  /// validando si el personaje no esta en favoritos, si ya esta, se elimina
   if (!usuarioActual.favoritos.includes(id)) {
     usuarioActual.agregarFavorito(id);
   } else {
     usuarioActual.eliminarFavorito(id);
   }
+  // actualizar sessionStorage
   sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActual));
+  // actualizar el estado del corazon
   document.querySelectorAll(`.label-${id}`).forEach(label => {
     if (usuarioActual.favoritos.includes(id)) {
       label.classList.add("bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)]");
@@ -297,12 +313,14 @@ async function cargarFavoritos() {
   try {
     const favoritos = JSON.parse(sessionStorage.getItem("usuarioActual")).favoritos;
     for (const id of favoritos) {
+      // Obtener los datos del personaje
       const response = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
       const data = await response.json();
+      // Crear tarjeta para el personaje favorito
       let card = document.createElement('div');
-        card.className = 'border-1 border-[#008000] rounded shadow-lg bg-zinc-800 flex flex-col gap-2 relative overflow-hidden hover:scale-105 transition duration-300 hover:shadow-lg hover:shadow-[#008000]';
-        card.innerHTML = crearTarjeta(data, "fav");
-        divFavoritos.appendChild(card);
+      card.className = 'border-1 border-[#008000] rounded shadow-lg bg-zinc-800 flex flex-col gap-2 relative overflow-hidden hover:scale-105 transition duration-300 hover:shadow-lg hover:shadow-[#008000]';
+      card.appendChild(crearTarjeta(data, "favorito"));
+      divFavoritos.appendChild(card);
     }
   } catch (error) {
     console.error(error);
@@ -317,9 +335,11 @@ async function cargarFavoritos() {
  * @returns {string} - El HTML de la tarjeta.
  */
 function crearTarjeta(character, contexto = "card") {
+  // variables para saber el estado del personaje, asignarle un id a cada tarjeta y crear el elemento de la tarjeta
   const esFavorito = usuarioActual.favoritos.includes(character.id);
   const idUnico = `${contexto}-${character.id}`;
-  const tarjeta = `
+  const tarjeta = document.createElement("div");
+  tarjeta.innerHTML = `
     <img src="${character.image}" alt="${character.name}" class="w-full group-hover:scale-110 transition duration-300">
     <div class="p-4 flex flex-col gap-2">
       <h2 class="font-bold text-2xl">${character.name}</h2>
@@ -328,7 +348,7 @@ function crearTarjeta(character, contexto = "card") {
       <p><span class="font-bold">Género:</span> ${character.gender}</p>
     </div>
     <label class="absolute top-4 right-4 p-3 rounded-full ${esFavorito ? 'bg-[linear-gradient(135deg,_hsl(120,100%,50%)_0%,_hsl(180,100%,40%)_100%)]' : 'bg-zinc-700'} label-${character.id} cursor-pointer hover:scale-105 transition duration-300">
-      <input id="${idUnico}" type="checkbox" class="hidden input-${character.id}" onclick="agregarEliminarFavorito(${character.id})" ${esFavorito ? 'checked' : ''}>
+      <input id="${idUnico}" type="checkbox" class="hidden input-${character.id}" ${esFavorito ? 'checked' : ''}>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
         viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round"
@@ -337,6 +357,11 @@ function crearTarjeta(character, contexto = "card") {
       </svg>
     </label>
   `;
+  // evento para agregar o eliminar de favoritos
+  tarjeta.querySelector(`#${idUnico}`).addEventListener("click", () => {
+    agregarEliminarFavorito(character.id);
+  });
+
   return tarjeta;
 }
 
@@ -370,6 +395,7 @@ function navegacion(info) {
  */
 
 function actualizarUsuario() {
+  // Actualizar la información del usuario en el almacenamiento local
   usuarios = usuarios.map(user => user.correo === usuarioActual.correo ? usuarioActual : user);
   localStorage.setItem("usuarios", JSON.stringify(usuarios));
 }
