@@ -40,6 +40,7 @@ const btnFavoritos = document.getElementById("btnFavoritos");
 const sectionFavoritos = document.getElementById("sectionFavoritos");
 const sectionTarjetas = document.getElementById("sectionTarjetas");
 const divFavoritos = document.getElementById("divFavoritos");
+const mensajeFavoritosVacios = document.getElementById("mensajeFavoritosVacios");
 
 const regexCorreo = /[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,5}/;
 const regexPassword = /^(?=.*[A-Z])(?=.*[$@$!%*?&]).{8,15}$/;
@@ -237,6 +238,10 @@ function iniciarSeccionFuncion(usuarioActualFuncion) {
   btnPersonajes.click();
   sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActualFuncion));
   usuarioActual = restaurarUsuario(usuarioActualFuncion);
+  if(usuarioActual.favoritos.length > 0){
+    mensajeFavoritosVacios.classList.add("hidden");
+    mensajeFavoritosVacios.classList.remove("flex");
+  }
   header.classList.remove("hidden");
   document.getElementById("sectionIniciar").classList.add("hidden");
   document.getElementById("main").classList.add("items-start");
@@ -284,8 +289,16 @@ function agregarEliminarFavorito(id) {
   /// validando si el personaje no esta en favoritos, si ya esta, se elimina
   if (!usuarioActual.favoritos.includes(id)) {
     usuarioActual.agregarFavorito(id);
+    if(usuarioActual.favoritos.length === 1){
+      mensajeFavoritosVacios.classList.add("hidden");
+      mensajeFavoritosVacios.classList.remove("flex");
+    }
   } else {
     usuarioActual.eliminarFavorito(id);
+    if(usuarioActual.favoritos.length === 0){
+      mensajeFavoritosVacios.classList.remove("hidden");
+      mensajeFavoritosVacios.classList.add("flex");
+    }
   }
   // actualizar sessionStorage
   sessionStorage.setItem("usuarioActual", JSON.stringify(usuarioActual));
