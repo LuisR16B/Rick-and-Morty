@@ -22,6 +22,7 @@ Opcional: Crea una página de login/register con sus validaciones respectivas. C
 Opcional: Encripta la contraseña del usuario al momento de registrarse, y desencriptala unicamente para verificación al momento del login, para encriptar debes de utilizar la palabra clave que funcione como una llave. Esta llave debe de estar escondida en un archivo .env, ya que el usuario no carga este archivo en el frontend.
 */
 
+
 import bcrypt from "https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/+esm";
 
 const iniciarSeccion = document.getElementById("iniciarSeccion");
